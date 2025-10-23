@@ -4,7 +4,10 @@ import com.fitness.activityservice.dto.ActivityRequest;
 import com.fitness.activityservice.dto.ActivityResponse;
 import com.fitness.activityservice.model.Activity;
 import com.fitness.activityservice.repository.ActivityRepository;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,6 +15,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ActivityService {
 
     @Autowired
@@ -19,6 +23,16 @@ public class ActivityService {
 
     @Autowired
     private UserValidationService userValidationService;
+
+    // we can send and received messages using RabbitTemplate(from RabbitMQ)
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @Value("${rabbitmq.exchange.name}")
+    private String exchange;    // getting exchange variable value from application.yml file
+
+    @Value("${rabbitmq.routing.key}")
+    private String routingKey;
 
     public ActivityResponse trackActivity(ActivityRequest request) {
 
@@ -39,10 +53,16 @@ public class ActivityService {
 
         Activity savedActivity = activityRepository.save(activity);
 
+        // Publis to RabbitMQ for AI Processing
+        try {
+            rabbitTemplate.convertAndSend(exchange, routingKey, savedActivity); // savedActivity is the object to be saved/publised in queue
+
+        } catch (Exception e) {
+            log.error("Failed to publis activity to RabbitMQ : " , e);
+        }
+
+
         return mapToResponse(savedActivity);
-
-
-
 
     }
 
