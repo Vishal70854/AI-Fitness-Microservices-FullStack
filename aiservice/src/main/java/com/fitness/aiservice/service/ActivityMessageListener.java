@@ -1,6 +1,8 @@
 package com.fitness.aiservice.service;
 
 import com.fitness.aiservice.model.Activity;
+import com.fitness.aiservice.model.Recommendation;
+import com.fitness.aiservice.repository.RecommendationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -13,10 +15,18 @@ public class ActivityMessageListener {
 
     private final ActivityAIService aiService;  // this bean will be automatically created as it is declared final and also @RequiredArgsConstructor is used at class level
 
+    // get bean of RecommendationRepository to save AI generated recommendation to Database
+    private final RecommendationRepository recommendationRepository;
+
     @RabbitListener(queues = "activity.queue") // this annotation will listen to the rabbitMQ messages from specified queue name
     public void processActivity(Activity activity){
         log.info("Received activity for processing: {}", activity.getId());
-        log.info("Generated Recommendation: {}", aiService.generateRecommendation(activity));
+//        log.info("Generated Recommendation: {}", aiService.generateRecommendation(activity));
+
+        // generate/get AI recommendations (connect GEMINI AI to generate recommendations)
+        Recommendation recommendation = aiService.generateRecommendation(activity);
+        recommendationRepository.save(recommendation);
+
 
     }
 

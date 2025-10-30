@@ -35,9 +35,9 @@ public class GeminiService {
         String response = webClient.post()
                 .uri(geminiApiUrl + geminiApiKey)
                 .header("Content-Type", "application/json")
-                .bodyValue(requestBody)
+                .bodyValue(requestBody)// passing the body to GEMINI API to get the response in String type
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(String.class)// we want reponse in String type
                 .block();
 
         return response;
