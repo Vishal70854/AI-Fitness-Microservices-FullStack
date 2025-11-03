@@ -10,12 +10,15 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "users")  // name of user table in db
 @Data
-public class User {
+public class  User {
     @Id // primary key
     @GeneratedValue(strategy = GenerationType.UUID) // primary key will be auto generated
     private String id;
     @Column(unique = true, nullable = false)    // email should be unique and not null
     private String email;
+
+    private String keycloakId;
+
     @Column(nullable = false)   // password should not be null
     private String password;
     private String firstName;

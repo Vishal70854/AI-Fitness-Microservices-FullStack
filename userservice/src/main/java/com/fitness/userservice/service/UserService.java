@@ -18,7 +18,19 @@ public class UserService {
     public UserResponse register(@Valid RegisterRequest request) {
 
         if(repository.existsByEmail(request.getEmail())){
-            throw new RuntimeException("Email already exists");
+            User existingUser = repository.findByEmail(request.getEmail());
+            // set saved user data to userReponse and return it
+            UserResponse userResponse = new UserResponse();
+            userResponse.setId(existingUser.getId());
+            userResponse.setKeycloakId(existingUser.getKeycloakId());
+            userResponse.setPassword(existingUser.getPassword());
+            userResponse.setEmail(existingUser.getEmail());
+            userResponse.setFirstName(existingUser.getFirstName());
+            userResponse.setLastName(existingUser.getLastName());
+            userResponse.setCreatedAt(existingUser.getCreatedAt());
+            userResponse.setUpdatedAt(existingUser.getUpdatedAt());
+
+            return userResponse;
         }
 
         // create user object and save data
@@ -33,6 +45,7 @@ public class UserService {
         // set saved user data to userReponse and return it
         UserResponse userResponse = new UserResponse();
         userResponse.setId(savedUser.getId());
+        userResponse.setKeycloakId(savedUser.getKeycloakId());
         userResponse.setPassword(savedUser.getPassword());
         userResponse.setEmail(savedUser.getEmail());
         userResponse.setFirstName(savedUser.getFirstName());
@@ -65,6 +78,6 @@ public class UserService {
     // check whether the user exists in db by userId
     public Boolean existByUserId(String userId) {
         log.info("Calling User Validation API for userId: {}", userId);
-        return repository.existsById(userId);   // existsById(id) is an inbuild method in JpaRepository(similar to findById(id))
+        return repository.existsByKeycloakId(userId);   // existsById(id) is an inbuild method in JpaRepository(similar to findById(id))
     }
 }
