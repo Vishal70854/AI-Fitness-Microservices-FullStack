@@ -36,6 +36,7 @@ public class UserService {
         // create user object and save data
         User user = new User();
         user.setEmail(request.getEmail());
+        user.setKeycloakId(request.getKeycloakId());    // setting keycloakId from Keycloak
         user.setPassword(request.getPassword());
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
